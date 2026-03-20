@@ -5,7 +5,7 @@ import yfinance as yf
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-PORTFOLIO = ["AAPL", "GOOGL", "MSFT", "TSLA", "AMZN"]
+PORTFOLIO = ["AAPL", "GOOGL", "MSFT", "TSLA", "AMZN", "NVDA", "META", "NFLX"]
 
 @app.route("/")
 def home():
