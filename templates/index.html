@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Stock Portfolio</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: sans-serif;
+      background: #0f0f0f;
+      color: #eeeeee;
+      padding: 2rem;
+    }
+
+    header {
+      margin-bottom: 2rem;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      color: #4ade80;
+    }
+
+    header p {
+      color: #888;
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+
+    .card {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 12px;
+      padding: 1.2rem;
+    }
+
+    .symbol {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #4ade80;
+    }
+
+    .company {
+      font-size: 0.8rem;
+      color: #666;
+      margin-bottom: 0.8rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .price {
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .change.up   { color: #4ade80; }
+    .change.down { color: #f87171; }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #2a2a2a;
+      margin: 0.8rem 0;
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: #666;
+    }
+
+    .badge {
+      display: inline-block;
+      margin-top: 0.6rem;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+    }
+
+    .badge.up   { background: #14532d; color: #4ade80; }
+    .badge.down { background: #450a0a; color: #f87171; }
+
+    .loading {
+      color: #555;
+      font-size: 1rem;
+      margin-top: 2rem;
+    }
+
+    .error {
+      color: #f87171;
+      font-size: 1rem;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>📈 My Stock Portfolio</h1>
+    <p>Live data · updates on page load</p>
+  </header>
+
+  <div id="stocks" class="grid">
+    <p class="loading">Loading stock data...</p>
+  </div>
+
+  <script>
+  const API = "http://localhost:5000/portfolio";
+
+  fetch(API)
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(stocks) {
+      console.log(stocks); // this prints the raw data so we can inspect it
+      const grid = document.getElementById("stocks");
+      grid.innerHTML = "";
+
+      stocks.forEach(function(s) {
+        console.log(s); // prints each individual stock object
+        const isUp     = s.change_pct >= 0;
+        const arrow    = isUp ? "▲" : "▼";
+        const dirClass = isUp ? "up" : "down";
+        const label    = isUp ? "Gaining" : "Dropping";
+
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <div class="symbol">${s.symbol}</div>
+          <div class="company">${s.name}</div>
+          <div class="price">$${s.price}</div>
+          <div class="change ${dirClass}">
+            ${arrow} ${Math.abs(s.change_pct)}%
+          </div>
+          <hr class="divider">
+          <div class="meta">
+            <span>High $${s.week_high}</span>
+            <span>Low $${s.week_low}</span>
+          </div>
+          <span class="badge ${dirClass}">${label}</span>
+        `;
+        grid.appendChild(card);
+      });
+    })
+    .catch(function(error) {
+      document.getElementById("stocks").innerHTML =
+        '<p class="error">Could not load data. Make sure app.py is running.</p>';
+      console.error(error);
+    });
+</script>
+
+</body>
+</html>
