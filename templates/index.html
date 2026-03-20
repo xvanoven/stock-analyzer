@@ -118,20 +118,18 @@
     <p class="loading">Loading stock data...</p>
   </div>
 
-  <script>
-  const API = "http://localhost:5000/portfolio";
+ <script>
+  const API = "/portfolio";
 
-  fetch(API)
+  fetch(API, { signal: AbortSignal.timeout(60000) })
     .then(function(response) {
       return response.json();
     })
     .then(function(stocks) {
-      console.log(stocks); // this prints the raw data so we can inspect it
       const grid = document.getElementById("stocks");
       grid.innerHTML = "";
 
       stocks.forEach(function(s) {
-        console.log(s); // prints each individual stock object
         const isUp     = s.change_pct >= 0;
         const arrow    = isUp ? "▲" : "▼";
         const dirClass = isUp ? "up" : "down";
@@ -158,7 +156,7 @@
     })
     .catch(function(error) {
       document.getElementById("stocks").innerHTML =
-        '<p class="error">Could not load data. Make sure app.py is running.</p>';
+        '<p class="error">Could not load data. Please refresh and try again.</p>';
       console.error(error);
     });
 </script>

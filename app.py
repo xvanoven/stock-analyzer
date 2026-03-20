@@ -15,22 +15,30 @@ def home():
 def get_portfolio():
     results = []
     for ticker in PORTFOLIO:
-        stock = yf.Ticker(ticker)
-        info = stock.info
-        hist = stock.history(period="5d")
+        try:
+            stock = yf.Ticker(ticker)
+            info = stock.info
+            hist = stock.history(period="5d")
 
-        results.append({
-            "symbol": ticker,
-            "name": info.get("longName") or info.get("shortName") or info.get("quoteType", ticker),
-            "price": round(info.get("currentPrice", 0), 2),
-            "change_pct": round(info.get("regularMarketChangePercent", 0), 2),
-            "week_high": round(hist["High"].max(), 2),
-            "week_low": round(hist["Low"].min(), 2),
-        })
+            results.append({
+                "symbol": ticker,
+                "name": info.get("longName") or info.get("shortName") or ticker,
+                "price": round(info.get("currentPrice", 0), 2),
+                "change_pct": round(info.get("regularMarketChangePercent", 0), 2),
+                "week_high": round(hist["High"].max(), 2),
+                "week_low": round(hist["Low"].min(), 2),
+            })
+        except Exception as e:
+            print(f"Error fetching {ticker}: {e}")
+            results.append({
+                "symbol": ticker,
+                "name": ticker,
+                "price": 0,
+                "change_pct": 0,
+                "week_high": 0,
+                "week_low": 0,
+            })
 
     response = jsonify(results)
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response
-
-if __name__ == "__main__":
-    app.run(debug=True)
